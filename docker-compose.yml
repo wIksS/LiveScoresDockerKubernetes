@@ -1,0 +1,70 @@
+version: '3.4'
+
+services:
+  data:
+    container_name: sqlserver
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    ports: 
+        - "1433:1433"
+    volumes: 
+        - sqldata:/var/opt/mssql 
+    environment:
+        - ACCEPT_EULA=Y
+        - SA_PASSWORD=yourStrongPassword12!@
+    networks: 
+        - live-score-network
+  live-scores-api:
+    image: viktordakov97/live-scores-api:1.0
+    ports: 
+      - "8080:80"
+    environment:
+    - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=GamesDatabase;User Id=sa; Password=yourStrongPassword12!@;MultipleActiveResultSets=true
+    - MessageQueueSettings__Host=rabbitmq
+    - MessageQueueSettings__UserName=rabbitmquser
+    - MessageQueueSettings__Password=rabbitmqPassword12!
+    build:
+      context: ./LiveScoresAPI
+      dockerfile: Dockerfile
+    restart: always
+    networks: 
+      - live-score-network
+    depends_on:
+      - rabbitmq
+      - data
+  live-scores-crawler:
+    image: viktordakov97/live-scores-crawler:1.0
+    environment:
+    - MessageQueueSettings__Host=rabbitmq
+    - MessageQueueSettings__UserName=rabbitmquser
+    - MessageQueueSettings__Password=rabbitmqPassword12!
+    ports: 
+      - "8090:80"
+    build:
+      context: ./LiveScoresCrawlerSource
+      dockerfile: Dockerfile
+    restart: always
+    networks: 
+        - live-score-network
+    depends_on:
+      - "rabbitmq"
+  rabbitmq:
+    image: rabbitmq:3-management
+    networks: 
+        - live-score-network
+    hostname: "rabbitmq"
+    environment:
+        - RABBITMQ_DEFAULT_USER=rabbitmquser
+        - RABBITMQ_DEFAULT_PASS=rabbitmqPassword12!
+    labels:
+      NAME: "rabbitmq"
+    volumes:
+        - rabbitmq:/var/lib/rabbitmq/mnesia
+    ports:
+    - "15672:15672"
+    - "5672:5672"
+
+networks:
+    live-score-network:
+volumes:
+    sqldata:
+    rabbitmq:
