@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: live-scores-api-database-data
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: live-scores-api-database
+spec:
+  clusterIP: None
+  ports:
+  - port: 1433
+    targetPort: 1433
+  selector:
+    database: live-scores-api
+
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: live-scores-api-database
+spec:
+  serviceName: live-scores-api-database
+  selector:
+    matchLabels: 
+      database: live-scores-api
+  template:
+    metadata:
+      labels:
+        database: live-scores-api
+        system: database
+    spec:
+      terminationGracePeriodSeconds: 60
+      securityContext:
+        fsGroup: 10001
+      containers:
+      - name: live-scores-api-database
+        image: mcr.microsoft.com/mssql/server:2019-latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 1433
+        resources:
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        env:
+        - name: ACCEPT_EULA
+          value: "Y"
+        - name: SA_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: environment-secrets
+              key: live-scores-api-database-sa-password
+        volumeMounts:
+        - name: live-scores-api-database-data
+          mountPath: /var/opt/mssql
+      volumes:
+      - name: live-scores-api-database-data
+        persistentVolumeClaim:
+          claimName: live-scores-api-database-data
+    
