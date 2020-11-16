@@ -9,6 +9,21 @@ spec:
     requests:
       storage: 5Gi
 
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: event-bus-man
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 15672
+    targetPort: 15672
+  selector:
+    event-bus: rabbitmq
+
 ---
 
 apiVersion: v1
@@ -46,6 +61,7 @@ spec:
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 5672
+        - containerPort: 15672
         resources:
           limits:
             memory: "1Gi"

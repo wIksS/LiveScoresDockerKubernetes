@@ -11,10 +11,10 @@ COPY ["LiveScores/LiveScores.csproj", "LiveScores/"]
 RUN dotnet restore "LiveScoresAPI/LiveScoresAPI.csproj"
 COPY . .
 WORKDIR "/src/LiveScoresAPI"
-RUN dotnet build "LiveScoresAPI.csproj" -c Release -o /app/build
+RUN dotnet build "LiveScoresAPI.csproj" -c Debug -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "LiveScoresAPI.csproj" -c Release -o /app/publish
+RUN dotnet publish "LiveScoresAPI.csproj" -c Debug -o /app/publish
 
 FROM base AS final
 WORKDIR /app

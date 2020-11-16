@@ -18,9 +18,19 @@ namespace LiveScoresAPI.Services.Games
         }
         public async Task AddGame(GameAddMessage game)
         {
-            bool test = gamesDb.Games.AsEnumerable().Any(g => g.Team1 == game.Team1
-                             && g.Team2 == game.Team2
-                             && (DateTime.Now - g.CreatedOn).TotalMinutes < 120);
+            bool test = false;
+            try
+            {
+                test = gamesDb.Games.AsEnumerable().Any(g => g.Team1 == game.Team1
+ && g.Team2 == game.Team2
+ && (DateTime.Now - g.CreatedOn).TotalMinutes < 120);
+            }
+            catch (Exception e)
+            {
+
+
+                throw e;
+            }
 
 
             if (!test)

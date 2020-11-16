@@ -8,7 +8,7 @@
         public GamesDbContext(DbContextOptions<GamesDbContext> options)
             : base(options)
         {
-            //this.Database.EnsureCreated();
+            this.Database.EnsureCreated();
         }
 
         public DbSet<Game> Games { get; set; }

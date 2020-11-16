@@ -1,0 +1,77 @@
+networks:
+  live-score-network: {}
+services:
+  data:
+    container_name: sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: yourStrongPassword12!@
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    networks:
+      live-score-network: null
+    ports:
+    - published: 1433
+      target: 1433
+    volumes:
+    - sqldata:/var/opt/mssql:rw
+  live-scores-api:
+    build:
+      context: C:\Users\user\source\repos\lltestlll\LiveScores\LiveScoresAPI
+      dockerfile: Dockerfile
+    depends_on:
+      data:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+    environment:
+      ConnectionStrings__DefaultConnection: Server=sqlserver;Database=GamesDatabase;User
+        Id=sa; Password=yourStrongPassword12!@;MultipleActiveResultSets=true
+      MessageQueueSettings__Host: rabbitmq
+      MessageQueueSettings__Password: rabbitmqPassword12!
+      MessageQueueSettings__UserName: rabbitmquser
+    image: viktordakov97/live-scores-api:1.0
+    networks:
+      live-score-network: null
+    ports:
+    - published: 8080
+      target: 80
+    restart: always
+  live-scores-crawler:
+    build:
+      context: C:\Users\user\source\repos\lltestlll\LiveScores\LiveScoresCrawlerSource
+      dockerfile: Dockerfile
+    depends_on:
+      rabbitmq:
+        condition: service_started
+    environment:
+      MessageQueueSettings__Host: rabbitmq
+      MessageQueueSettings__Password: rabbitmqPassword12!
+      MessageQueueSettings__UserName: rabbitmquser
+    image: viktordakov97/live-scores-crawler:1.0
+    networks:
+      live-score-network: null
+    ports:
+    - published: 8090
+      target: 80
+    restart: always
+  rabbitmq:
+    environment:
+      RABBITMQ_DEFAULT_PASS: rabbitmqPassword12!
+      RABBITMQ_DEFAULT_USER: rabbitmquser
+    hostname: rabbitmq
+    image: rabbitmq:3-management
+    labels:
+      NAME: rabbitmq
+    networks:
+      live-score-network: null
+    ports:
+    - published: 15672
+      target: 15672
+    - published: 5672
+      target: 5672
+    volumes:
+    - rabbitmq:/var/lib/rabbitmq/mnesia:rw
+version: '3.4'
+volumes:
+  rabbitmq: {}
+  sqldata: {}

@@ -3,7 +3,7 @@
   <PropertyGroup Label="Globals">
     <ProjectVersion>2.1</ProjectVersion>
     <DockerTargetOS>Linux</DockerTargetOS>
-    <ProjectGuid>47c55f8b-04b2-4ab7-b202-599d61276348</ProjectGuid>
+    <ProjectGuid>d09c4032-b79b-4954-83fa-f0fc8a96021c</ProjectGuid>
     <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
     <DockerServiceUrl>{Scheme}://localhost:{ServicePort}</DockerServiceUrl>
     <DockerServiceName>livescorescrawlersource</DockerServiceName>
