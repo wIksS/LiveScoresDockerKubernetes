@@ -4,7 +4,7 @@
 
 ![Live scores diagram](/Diagrams/livescores.png)
 
-### Microservices
+## Microservices
 
 -LiveScoresCrawlerSource
 	- Created with a web crawler
@@ -16,7 +16,7 @@
 	- Serves queries about games using GraphQL
 	- Writes and reads from SQL server (not scalable, preferrably we would have a distributed database and put everything there
 
-### Used technologies
+## Used technologies
 
 - ASP.NET Core
 - RabbitMQ
@@ -30,8 +30,12 @@
 	- We can easily span more istances of our microservices for scalability
 - GraphQL
 	- Helps us with flexible queries over games (very simplistic right now)
+- HangFire
+	- Used to retrigger crawling of sources
+	- Used with an in memory database because the crawling intervals are 1 minute
+	Can be easily changed to SQL db.
 	
-### Future work
+## Future work
 
 - Hide all sensitive data. Use environment variables, hashing, etc.
 - Checking for unique games is done in a horrible manner. It pull all of the data in memory and checks it (not scalable in any way)
